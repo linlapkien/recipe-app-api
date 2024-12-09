@@ -1,0 +1,19 @@
+# Version of docker-compose syntax we use here
+version: '3.9'
+
+#main block in docker compose file
+services:
+  app:
+    build:
+      # context: .  will be root directory
+      context: .
+    ports:
+      # Port mapping
+      - '8000:8000'
+    volumes:
+      # Way of mapping directory from our system into docker container
+      - ./app:/app
+
+    # Command that is used to run the service
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
