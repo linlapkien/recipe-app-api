@@ -20,8 +20,8 @@ jobs:
         uses: actions/checkout@v2
       # Next step is test, This is cmd that run unit test
       - name: Test
-        run: docker-compose run --rm app sh -c "python manage.py test"
+        run: docker compose run --rm app sh -c "python manage.py test"
       # Run Lint after Test
       - name: Lint
-        run: docker-compose run --rm app sh -c "flake8"
+        run: docker compose run --rm app sh -c "flake8"
       # If any step here is failed, they will return anything except 0, 0 is successful.
