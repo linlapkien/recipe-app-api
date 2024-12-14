@@ -1,0 +1,27 @@
+---
+name: Checks
+
+on: [push]
+
+jobs:
+  test-lint:
+    name: Test and Lint
+    runs-on: ubuntu-20.04
+    # Here is steps of actions
+    steps:
+      # First step: login to dockerhub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Then checkout step after login to docker action
+      - name: Checkout
+        uses: actions/checkout@v2
+      # Next step is test, This is cmd that run unit test
+      - name: Test
+        run: docker-compose run --rm app sh -c "python manage.py test"
+      # Run Lint after Test
+      - name: Lint
+        run: docker-compose run --rm app sh -c "flake8"
+      # If any step here is failed, they will return anything except 0, 0 is successful.
