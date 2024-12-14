@@ -1,12 +1,12 @@
-# Version of docker-compose syntax we use here
-version: '3.9'
-
 #main block in docker compose file
 services:
   app:
     build:
       # context: .  will be root directory
       context: .
+      # Run use docker-compose, which using for development, set DEV to value to TRUE
+      args:
+        - DEV=true
     ports:
       # Port mapping
       - '8000:8000'

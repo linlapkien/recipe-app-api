@@ -5,9 +5,14 @@ LABEL maintainer="linlapkien.com"
 ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /tmp/requirements.txt
+COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./app /app
 WORKDIR /app
 EXPOSE 8000
+
+# Build Arg DEV, set defaults value to false
+# When run docker-compose.yml file, it will overwrite ARE DEV=true
+ARG DEV=false
 
 # RUN command when build image
 # This create new virtual environment work with docker
@@ -16,6 +21,14 @@ RUN python -m venv /py && \
     /py/bin/pip install --upgrade pip && \ 
     # Install list of requirements inside docker image
     /py/bin/pip install -r /tmp/requirements.txt && \
+
+    #When docker file run, it will install requirements.txt first, then dev=true, install more requirements.dev.txt to docker images.
+    #if dev=true, install dev dependecies otherwise, not
+    if [ $DEV = "true" ]; \
+        then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
+    # if u use if statement, u have to end like this: 
+    fi && \
+
     # remove tmp directory, we dont need any dependency when we created
     rm -rf /tmp && \
     # add new user inside image.
