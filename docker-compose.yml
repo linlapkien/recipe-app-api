@@ -13,7 +13,32 @@ services:
     volumes:
       # Way of mapping directory from our system into docker container
       - ./app:/app
-
     # Command that is used to run the service
     command: >
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py wait_for_db && 
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      # db in HOST here is db below, then for all the attributes should be match value in environment of db below
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+    # depend_on here tell dockercompose depend db, try to wait db service to start, befor start this app service
+    # if db service failed, immediately app gonna fail, and shutdown the app
+    depends_on:
+      - db
+
+  db:
+    # https://hub.docker.com/_/postgres/tags?name=13
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    environment:
+      # To set the inital db configuration for new db service
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+
+volumes:
+  dev-db-data:

@@ -19,6 +19,12 @@ ARG DEV=false
 RUN python -m venv /py && \ 
     # upgrade python package manager inside venv
     /py/bin/pip install --upgrade pip && \ 
+    # install postgresql-client. package that we need install inside image
+    apk add --update --no-cache postgresql-client && \
+    # virtual action, group installed packages into tmp-build-deps 
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        # This is list of packages that we need to install
+        build-base postgresql-dev musl-dev && \
     # Install list of requirements inside docker image
     /py/bin/pip install -r /tmp/requirements.txt && \
 
@@ -28,9 +34,10 @@ RUN python -m venv /py && \
         then /py/bin/pip install -r /tmp/requirements.dev.txt ; \
     # if u use if statement, u have to end like this: 
     fi && \
-
     # remove tmp directory, we dont need any dependency when we created
     rm -rf /tmp && \
+    # rm tmp-build-deps, we've install list of package above, then we will rm later on. This keep our dockerfile low weight. 
+    apk del .tmp-build-deps && \
     # add new user inside image.
     #Important !!! Dont run ur application using the root user!
     adduser \
