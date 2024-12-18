@@ -1,6 +1,6 @@
 [flake8]
 # Exclude is we dont need to change code
-#run this cmd in terminal 
+# run this cmd in terminal 
 # $docker-compose run --rm app sh -c "flake8"
 exclude = 
     migrations, 
