@@ -15,7 +15,7 @@ services:
       - ./app:/app
     # Command that is used to run the service
     command: >
-      sh -c "python manage.py wait_for_db && 
+      sh -c "python manage.py wait_for_db &&
              python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     environment:
@@ -39,6 +39,8 @@ services:
       - POSTGRES_DB=devdb
       - POSTGRES_USER=devuser
       - POSTGRES_PASSWORD=changeme
+    ports:
+      - '5432:5432'
 
 volumes:
   dev-db-data:

@@ -1,13 +1,10 @@
 """
 Databases Models.
 """
-from django.db import models
-""" #https://docs.djangoproject.com/en/2.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser.get_username:~:text=Importing-,AbstractBaseUser,-AbstractBaseUser%20and%20BaseUserManager """
-from django.contrib.auth.models import (
-    AbstractBaseUser,
-    BaseUserManager,
-    PermissionsMixin,
-)
+from django.conf import settings
+from django.db import models # noqa
+""" https://docs.djangoproject.com/en/2.2/topics/auth/customizing/#django.contrib.auth.models.AbstractBaseUser.get_username:~:text=Importing-,AbstractBaseUser,-AbstractBaseUser%20and%20BaseUserManager """ # noqa
+from django.contrib.auth.models import ( AbstractBaseUser, BaseUserManager, PermissionsMixin ) # noqa
 
 
 class UserManager(BaseUserManager):
@@ -17,7 +14,7 @@ class UserManager(BaseUserManager):
         """ Creatre, save and return a new user """
         if not email:
             raise ValueError('Users must have an email address.')
-        """ Pass normalised email to the email field. before saving the user. """
+        """Pass normalised email to the email field. be4 saving the user"""
         user = self.model(email=self.normalize_email(email), **extra_fields)
         """ This set_password will encrypt the password. """
         user.set_password(password)
@@ -39,6 +36,7 @@ class UserManager(BaseUserManager):
 """ PermissionsMixin = Functioonality for the permiussions & fields. """
 class User(AbstractBaseUser, PermissionsMixin):
     """ User in the system."""
+
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
@@ -48,3 +46,30 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+class Recipe(models.Model):
+    """ Recipe object. """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    time_minutes = models.IntegerField()
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    link = models.CharField(max_length=255, blank=True)
+    tags = models.ManyToManyField('Tag')
+
+    def __str__(self):
+        return self.title
+
+class Tag(models.Model):
+    """ Tag to be used for a recipe. """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name

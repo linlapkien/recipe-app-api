@@ -1,9 +1,16 @@
 """
     Tests for model.
 """
+from decimal import Decimal
+
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
+from core import models
+
+def create_user(email="user@xample.com", password="testpass123"):
+    """ Helper function to create user that we use for assign to a tag. """
+    return get_user_model().objects.create_user(email, password)
 
 class ModelTests(TestCase):
     """Test Models. """
@@ -49,3 +56,32 @@ class ModelTests(TestCase):
         """ In order to access Django admin, is_staff be True. Allow you to login to Django admin.  superuser is_superuser be True. allow you to access everything insite Django admin. """
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+    def test_create_recipe(self):
+        """Test creating a new recipe."""
+        user = get_user_model().objects.create_user(
+            'test@example.com',
+            'test123',
+        )
+        """ user=user is the user who's recipe is belong to. """
+        recipe = models.Recipe.objects.create(
+            user = user,
+            title='Sample recipe name',
+            time_minutes=5,
+            price=Decimal('5.50'),
+            description='Sample recipe description',
+        )
+
+        self.assertEqual(str(recipe), recipe.title)
+
+    def test_create_tag(self):
+        """Test creating a new tag."""
+        user = create_user()
+        tag = models.Tag.objects.create(
+            user=user,
+            name='Vegan',
+        )
+
+        self.assertEqual(str(tag), tag.name)
+
+3
