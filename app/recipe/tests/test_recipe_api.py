@@ -34,8 +34,8 @@ def create_recipe(user, **params):
 
     return Recipe.objects.create(user=user, **defaults)
 
-def create_user(**params):
-    return get_user_model().objects.create_user(**params)
+def create_user(email='user@example.com', password='testpass'):
+    return get_user_model().objects.create_user(email=email, password=password)
 
 class PublicRecipeApiTests(TestCase):
     """ Test unauthenticated recipe API access """

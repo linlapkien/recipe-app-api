@@ -15,8 +15,8 @@ from recipe.serializers import IngredientSerializer
 INGREDIENTS_URL = reverse('recipe:ingredient-list')
 
 
-def create_user(**params):
-    return get_user_model().objects.create_user(**params)
+def create_user(email='user@example.com', password='testpass'):
+    return get_user_model().objects.create_user(email=email, password=password)
 
 class PublicIngredientsApiTests(TestCase):
     """ Test unauithenticated ingredients API requests """
