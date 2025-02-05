@@ -1,6 +1,8 @@
 """
 Tests for ingredients API.
 """
+from decimal import Decimal
+
 from django.urls import reverse
 from django.test import TestCase
 from django.contrib.auth import get_user_model
@@ -8,7 +10,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import Ingredient
+from core.models import Ingredient, Recipe
 
 from recipe.serializers import IngredientSerializer
 
@@ -96,3 +98,49 @@ class PrivateIngredientsApiTests(TestCase):
         ingredients = Ingredient.objects.filter(user=self.user)
         self.assertFalse(ingredients.exists())
 
+    def test_filter_ingredients_assigned_to_recipes(self):
+        """ Test filtering ingredients by those assigned to recipes """
+        ingredient1 = Ingredient.objects.create(user=self.user, name='Apple')
+        ingredient2 = Ingredient.objects.create(user=self.user, name='Turkey')
+        recipe = Recipe.objects.create(
+            user=self.user,
+            title='Apple crumble',
+            time_minutes=5,
+            price=Decimal('10.00'),
+        )
+        recipe.ingredients.add(ingredient1)
+
+        res = self.client.get(INGREDIENTS_URL, {'assigned_only': 1})
+
+        serializer1 = IngredientSerializer(ingredient1)
+        serializer2 = IngredientSerializer(ingredient2)
+
+        self.assertIn(serializer1.data, res.data)
+        self.assertNotIn(serializer2.data, res.data)
+
+    def test_filtered_ingredients_unique(self):
+        """ Test that filtered ingredients are unique """
+        # Create an ingredient Eggs
+        ingredient = Ingredient.objects.create(user=self.user, name='Eggs')
+        Ingredient.objects.create(user=self.user, name='Cheese')
+        # Create a 2 recipe then add ingredients Eggs
+        recipe1 = Recipe.objects.create(
+            user=self.user,
+            title='Eggs benedict',
+            time_minutes=10,
+            price=Decimal('12.00'),
+        )
+        recipe2 = Recipe.objects.create(
+            user=self.user,
+            title='Coriander eggs on toast',
+            time_minutes=20,
+            price=Decimal('5.00'),
+        )
+        recipe1.ingredients.add(ingredient)
+        recipe2.ingredients.add(ingredient)
+
+        # Filter ingredients by those assigned to recipes
+        res = self.client.get(INGREDIENTS_URL, {'assigned_only': 1})
+
+        # Check that only 1 ingredient is returned
+        self.assertEqual(len(res.data), 1)
