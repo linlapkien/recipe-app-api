@@ -48,7 +48,7 @@ class TagViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.UpdateMo
         serializer.save(user=self.request.user)
 
 
-class IngredientViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+class IngredientViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.CreateModelMixin):
     """ Manage ingredients in the database """
     serializer_class = serializers.IngredientSerializer
     queryset = Ingredient.objects.all()
