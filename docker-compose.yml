@@ -13,6 +13,7 @@ services:
     volumes:
       # Way of mapping directory from our system into docker container
       - ./app:/app
+      - dev-static-data:/vol/web
     # Command that is used to run the service
     command: >
       sh -c "python manage.py wait_for_db &&
@@ -44,3 +45,4 @@ services:
 
 volumes:
   dev-db-data:
+  dev-static-data:
