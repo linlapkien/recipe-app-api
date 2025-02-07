@@ -25,6 +25,7 @@ services:
       - DB_NAME=devdb
       - DB_USER=devuser
       - DB_PASS=changeme
+      - DEBUG=1
     # depend_on here tell dockercompose depend db, try to wait db service to start, befor start this app service
     # if db service failed, immediately app gonna fail, and shutdown the app
     depends_on:

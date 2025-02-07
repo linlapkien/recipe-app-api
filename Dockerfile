@@ -6,6 +6,7 @@ ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
+COPY ./scripts /scripts
 COPY ./app /app
 WORKDIR /app
 EXPOSE 8000
@@ -24,7 +25,7 @@ RUN python -m venv /py && \
     # virtual action, group installed packages into tmp-build-deps
     apk add --update --no-cache --virtual .tmp-build-deps \
         # This is list of packages that we need to install
-        build-base postgresql-dev musl-dev zlib zlib-dev && \
+        build-base postgresql-dev musl-dev zlib zlib-dev linux-headers && \
     # Install list of requirements inside docker image
     /py/bin/pip install -r /tmp/requirements.txt && \
 
@@ -51,9 +52,13 @@ RUN python -m venv /py && \
     # change owner of directory to django-user
     chown -R django-user:django-user /vol && \
     # change permission of directory to 755
-    chmod -R 755 /vol
+    chmod -R 755 /vol && \
+    # change permission of scripts directory to 755
+    chmod -R +x /scripts
 
 # update PATH ENV var
-ENV PATH="/py/bin:$PATH"
+ENV PATH="/scripts:/py/bin:$PATH"
 
 USER django-user
+
+CMD ["run.sh"]
